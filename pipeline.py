@@ -17,17 +17,18 @@ class Pipeline(object):
         Constructor
         '''
         self.pipe = Gst.Pipeline.new()
+        self.bus = None
 
         self._make_pipeline()
 
     def set_message_handler(self, func):
-        if not self.bus:
+        if self.bus is None:
             self._set_bus()
 
         self.bus.connect('message', func)
 
     def set_sync_message_handler(self, func):
-        if not self.bus:
+        if self.bus is None:
             self._set_bus()
 
         self.bus.connect('sync-message::element', func)
@@ -41,7 +42,7 @@ class Pipeline(object):
     def _set_bus(self):
         self.bus = self.pipe.get_bus()
         self.bus.add_signal_watch()
-        self.bus.enable_sync_message_emisstion()
+        self.bus.enable_sync_message_emission()
 
     def _make_pipeline(self):
         raise NotImplementedError()

@@ -17,10 +17,10 @@ class TcpPipeline(Pipeline):
         '''
         Constructor
         '''
-        super(TcpPipeline, self).__init__()
-
         self._host = host
         self._port = port
+
+        super(TcpPipeline, self).__init__()
 
     def _make_pipeline(self):
         '''
