@@ -4,15 +4,15 @@ gi.require_version('Gdk', '3.0')
 
 from gi.repository import Gtk, Gdk, Gio, GObject
 
-class HDDMonitorWidget(Gtk.Widget):
-    __gtype_name__ = 'HDDMonitorWidget'
+class DiskUsageWidget(Gtk.Widget):
+    __gtype_name__ = 'DiskUsageWidget'
 
     __gsignals__ = {
         'space-changed': (GObject.SIGNAL_RUN_LAST, None, ())
     }
 
     def __init__(self, monitor_device='/'):
-        super(HDDMonitorWidget, self).__init__()
+        super(DiskUsageWidget, self).__init__()
 
         self.__monitor_device = monitor_device
         self.__monitoring = Gio.File(monitor_device)
