@@ -82,7 +82,7 @@ class DiskUsageWidget(Gtk.Widget):
         attr.x = allocation.x
         attr.y = allocation.y
         attr.visual = self.get_visual()
-        attr.event_mask = self.get_events() | Gdk.EventMask.EXPOSURE_MASK
+        attr.event_mask = self.get_events() | Gdk.EventMask.EXPOSURE_MASK | Gdk.EventMask.POINTER_MOTION_MASK | Gdk.EventMask.POINTER_MOTION_HINT_MASK
 
         wat = Gdk.WindowAttributesType
         mask = wat.X | wat.Y | wat.VISUAL
@@ -92,6 +92,9 @@ class DiskUsageWidget(Gtk.Widget):
         self.register_window(window)
         self.set_realized(True)
         window.set_background_pattern(None)
+
+    def do_unrealize(self):
+        self.get_window().destroy()
 
     def do_draw(self, cr):
         text = 'Usage : {used} / {total}'.format(used=self.__calculate_disksize(self.__used), \
@@ -115,6 +118,7 @@ class DiskUsageWidget(Gtk.Widget):
 
     def do_space_changed(self, usage_percent):
         print('Now "%s" usage => %0.2f%%' % (self.__monitor_disk, (usage_percent * 100)))
+        self.get_window().invalidate_rect(self.get_allocation(), True)
 
     def get_monitoring_disk(self):
         return self.__monitor_disk
@@ -130,8 +134,12 @@ class DiskUsageWidget(Gtk.Widget):
 # GObject.type_register(DiskUsageWidget)
 
 if __name__ == '__main__':
+    import sys
     win = Gtk.Window()
-    widget = DiskUsageWidget(monitor_disk='/home/zia')
+    if sys.platform == 'Linux':
+        widget = DiskUsageWidget(monitor_disk='/home/zia')
+    else:
+        widget = DiskUsageWidget(monitor_disk='D:')
     win.set_title('DiskUsageWidget Sample')
     win.add(widget)
     win.connect('delete-event', Gtk.main_quit)
