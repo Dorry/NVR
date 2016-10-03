@@ -36,9 +36,10 @@ class DiskUsageWidget(Gtk.Widget):
 
     def __usage_changed(self, file_monitor, file, other_file, event_type):
         print(event_type)
-        if event_type in (Gio.FileMonitorEvent.MOVED_IN, Gio.FileMonitorEvent.CREATED):
+        if event_type in (Gio.FileMonitorEvent.CREATED, Gio.FileMonitorEvent.CHANGED, 
+                          Gio.FileMonitorEvent.CHANGES_DONE_HINT, Gio.FileMonitorEvent.ATTRIBUTE_CHANGED):
             print("파일이 생성되었습니다.")
-        elif event_type in (Gio.FileMonitorEvent.MOVED_OUT, Gio.FileMonitorEvent.DELETED):
+        elif event_type in (Gio.FileMonitorEvent.DELETED):
             print("파일이 삭제되었습니다.")
 
         print("file : ", file.get_parse_name())
@@ -120,7 +121,7 @@ class DiskUsageWidget(Gtk.Widget):
 
     def do_space_changed(self, usage_percent):
         print('Now "%s" usage => %0.2f%%' % (self.__monitor_disk, (usage_percent * 100)))
-        self.get_window().invalidate_rect(self.get_allocation(), True)
+        self.queue_draw()
 
     def do_unrealize(self):
         self.get_window().destroy()
