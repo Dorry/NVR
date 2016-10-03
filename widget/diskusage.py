@@ -28,6 +28,12 @@ class DiskUsageWidget(Gtk.Widget):
         self.__monitoring.connect('changed', self.__usage_changed)
 
         _, self.__used, self.__total = self.__calculate_diskusage()
+    
+    def get_label_alignment(self):
+        return self.__label_alignment
+    
+    def set_label_alignment(self, alignment):
+        self.__label_alignment = alignment
 
     def __usage_changed(self, file_monitor, file, other_file, event_type):
         print(event_type)
@@ -131,7 +137,7 @@ class DiskUsageWidget(Gtk.Widget):
     def stop(self):
         del self.__file, self.__monitoring
 
-# GObject.type_register(DiskUsageWidget)
+GObject.type_register(DiskUsageWidget)
 
 if __name__ == '__main__':
     import sys
