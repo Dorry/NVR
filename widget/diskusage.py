@@ -16,11 +16,10 @@ class DiskUsageWidget(Gtk.Widget):
     def __init__(self, monitor_disk='/', label_alignment=Gtk.PositionType.TOP):
         super(DiskUsageWidget, self).__init__()
 
-        self.__monitor_disk = monitor_disk
-
         if not isinstance(label_alignment, Gtk.PositionType):
             raise ValueError("label_alignment's type is not Gtk.PositionType.")
 
+        self.__monitor_disk = monitor_disk
         self.__label_alignment = label_alignment
 
         self.__file = Gio.File.new_for_path(monitor_disk)
@@ -142,7 +141,7 @@ GObject.type_register(DiskUsageWidget)
 if __name__ == '__main__':
     import sys
     win = Gtk.Window()
-    if sys.platform == 'Linux':
+    if sys.platform == 'linux':
         widget = DiskUsageWidget(monitor_disk='/home/zia')
     else:
         widget = DiskUsageWidget(monitor_disk='D:')
