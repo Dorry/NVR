@@ -98,9 +98,6 @@ class DiskUsageWidget(Gtk.Widget):
         self.set_realized(True)
         window.set_background_pattern(None)
 
-    def do_unrealize(self):
-        self.get_window().destroy()
-
     def do_draw(self, cr):
         text = 'Usage : {used} / {total}'.format(used=self.__calculate_disksize(self.__used), \
                                                  total=self.__calculate_disksize(self.__total))
@@ -124,6 +121,9 @@ class DiskUsageWidget(Gtk.Widget):
     def do_space_changed(self, usage_percent):
         print('Now "%s" usage => %0.2f%%' % (self.__monitor_disk, (usage_percent * 100)))
         self.get_window().invalidate_rect(self.get_allocation(), True)
+
+    def do_unrealize(self):
+        self.get_window().destroy()
 
     def get_monitoring_disk(self):
         return self.__monitor_disk
