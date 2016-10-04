@@ -37,7 +37,7 @@ class DiskUsageWidget(Gtk.Widget):
         self.__label_format = label_format or DEFAULT['format']  # format string is {percent}, {used}, {total}
 
         self.__file = Gio.File.new_for_path(monitor_disk)
-        self.__monitoring = self.__file.monitor_directory(Gio.FileMonitorFlags.NONE, None)
+        self.__monitoring = self.__file.monitor_directory(Gio.FileMonitorFlags.WATCH_MOVES, None)
         self.__monitoring.connect('changed', self.__usage_changed)
 
         _, self.__used, self.__total = self.__calculate_diskusage()
