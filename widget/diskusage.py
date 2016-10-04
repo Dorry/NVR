@@ -3,7 +3,16 @@ import gi
 gi.require_version('Gtk', '3.0')
 gi.require_version('Gdk', '3.0')
 
-from gi.repository import Gtk, Gdk, Gio, GObject
+from gi.repository import Gtk
+from gi.repository import Gdk
+from gi.repository import Gio
+from gi.repository import GObject
+
+
+DEFAULT = {'margin': 5,
+           'format': "{used} / {total}",
+           'fontsize': 12}
+
 
 class DiskUsageWidget(Gtk.Widget):
 
@@ -13,31 +22,43 @@ class DiskUsageWidget(Gtk.Widget):
         'space-changed': (GObject.SIGNAL_RUN_LAST, None, (GObject.TYPE_FLOAT,))
     }
 
-    def __init__(self, monitor_disk='/', label_alignment=Gtk.PositionType.TOP):
+    def __init__(self, monitor_disk='/',
+                 show_label=True,
+                 label_format=DEFAULT['format'],
+                 label_alignment=Gtk.PositionType.TOP):
         super(DiskUsageWidget, self).__init__()
 
         if not isinstance(label_alignment, Gtk.PositionType):
             raise ValueError("label_alignment's type is not Gtk.PositionType.")
 
         self.__monitor_disk = monitor_disk
+        self.__show_label = show_label
         self.__label_alignment = label_alignment
+        self.__label_format = label_format or DEFAULT['format']  # format string is {percent}, {used}, {total}
 
         self.__file = Gio.File.new_for_path(monitor_disk)
         self.__monitoring = self.__file.monitor_directory(Gio.FileMonitorFlags.NONE, None)
         self.__monitoring.connect('changed', self.__usage_changed)
 
         _, self.__used, self.__total = self.__calculate_diskusage()
-    
+
+    def set_label_format(self, label_format):
+        self.__label_format = label_format
+        self.queue_draw()
+
     def get_label_alignment(self):
         return self.__label_alignment
-    
+
     def set_label_alignment(self, alignment):
         self.__label_alignment = alignment
+        self.queue_draw()
 
     def __usage_changed(self, file_monitor, file, other_file, event_type):
         print(event_type)
-        if event_type in (Gio.FileMonitorEvent.CREATED, Gio.FileMonitorEvent.CHANGED, 
-                          Gio.FileMonitorEvent.CHANGES_DONE_HINT, Gio.FileMonitorEvent.ATTRIBUTE_CHANGED):
+        if event_type in (Gio.FileMonitorEvent.CREATED,
+                          Gio.FileMonitorEvent.CHANGED, 
+                          Gio.FileMonitorEvent.CHANGES_DONE_HINT,
+                          Gio.FileMonitorEvent.ATTRIBUTE_CHANGED):
             print("파일이 생성되었습니다.")
         elif event_type in (Gio.FileMonitorEvent.DELETED):
             print("파일이 삭제되었습니다.")
@@ -88,7 +109,10 @@ class DiskUsageWidget(Gtk.Widget):
         attr.x = allocation.x
         attr.y = allocation.y
         attr.visual = self.get_visual()
-        attr.event_mask = self.get_events() | Gdk.EventMask.EXPOSURE_MASK | Gdk.EventMask.POINTER_MOTION_MASK | Gdk.EventMask.POINTER_MOTION_HINT_MASK
+        attr.event_mask = self.get_events() \
+                          | Gdk.EventMask.EXPOSURE_MASK \
+                          | Gdk.EventMask.POINTER_MOTION_MASK \
+                          | Gdk.EventMask.POINTER_MOTION_HINT_MASK
 
         wat = Gdk.WindowAttributesType
         mask = wat.X | wat.Y | wat.VISUAL
@@ -100,7 +124,7 @@ class DiskUsageWidget(Gtk.Widget):
         window.set_background_pattern(None)
 
     def do_draw(self, cr):
-        text = 'Usage : {used} / {total}'.format(used=self.__calculate_disksize(self.__used), \
+        text = 'Usage : {used} / {total}'.format(used=self.__calculate_disksize(self.__used), 
                                                  total=self.__calculate_disksize(self.__total))
         text = self.__monitor_disk + ' => ' + text
 
@@ -130,7 +154,7 @@ class DiskUsageWidget(Gtk.Widget):
         return self.__monitor_disk
 
     def set_monitoring_disk(self, monitor_disk=None):
-        assert monitor_disk == None
+        assert monitor_disk is None
 
         self.__monitor_disk = monitor_disk
 
